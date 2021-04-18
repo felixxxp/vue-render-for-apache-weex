@@ -21,11 +21,14 @@ import * as core from '../core'
 
 import { inputCommon } from '../mixins'
 
+// 声明全局gloabl变量=window
 window.global = window
+// 声明全局weex变量 = weex instance
 window.weex = weex
 
 weex._styleMap = {}
 
+// 赋值weex方法
 ; ['getComponentInlineStyle',
   'extractComponentStyle',
   'mapNativeEvents',

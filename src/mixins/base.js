@@ -61,10 +61,12 @@ const debouncedWatchAppear = debounce(function () {
 /**
  * if it's a scrollable tag, then watch appear events for it.
  */
+// 监听滚动domappwar事件
 function watchAppearForScrollables (tagName, context) {
   // when this is a scroller/list/waterfall
   if (scrollableTypes.indexOf(tagName) > -1) {
     const sd = context.scrollDirection
+    // [FE-TODO] 水平滚动不处理appear?
     if (!sd || sd !== 'horizontal') {
       appearWatched = context
       watchAppear(context, true)
@@ -74,17 +76,24 @@ function watchAppearForScrollables (tagName, context) {
 
 export default {
   beforeCreate () {
+    // 监听懒加载事件
     if (!lazyloadWatched) {
       watchLazyload()
     }
   },
 
+  /**
+   * update 处理懒加载
+   */
   updated () {
     const el = this.$el
+    // [FE-TODO]nodeType ?
     if (!el || el.nodeType !== 1) {
       return
     }
+
     if (this._rootId) {
+      // 不存在weex-root，添加weex-root/weex-ct类名，设置data-wx-root-id属性
       if (el.className.indexOf('weex-root') <= -1) {
         el.classList.add('weex-root')
         el.classList.add('weex-ct')
@@ -94,47 +103,68 @@ export default {
 
     const tagName = this.$options && this.$options._componentTag
     const metaUp = weex._meta.updated
+
+    // 无记录，赋值为0，否则计数+1
     if (!metaUp[tagName]) {
       metaUp[tagName] = 0
     }
     metaUp[tagName]++
+
     // will check appearing when no other changes in latest 50ms.
+    // 节流
     debouncedWatchAppear()
     /**
      * since the updating of component may affect the layout, the lazyloading should
      * be fired.
      */
+    // 处理完后，移除事件监听
     this._fireLazyload()
   },
 
   mounted () {
     const tagName = this.$options && this.$options._componentTag
     const el = this.$el
+
     if (!el || el.nodeType !== 1) {
       return
     }
+
+    // 注入的component计数
     if (typeof weex._components[tagName] !== 'undefined') {
       weex._components[tagName]++
     }
+
     const metaMt = weex._meta.mounted
+
+    // 组件mounted计数
     if (!metaMt[tagName]) {
       metaMt[tagName] = 0
     }
+
     metaMt[tagName]++
 
+    // 滚动元素，监听appear事件处理
     watchAppearForScrollables(tagName, this)
 
     // when this is the root element of Vue instance.
+    // vue实例根节点
     if (this === this.$root) {
       const rootId = `wx-root-${idCnt++}`
+
+      // 未声明_root变量 ，先声明
       if (!weex._root) {
         weex._root = {}
       }
+
+      // 赋值
       weex._root[rootId] = this
       this._rootId = rootId
+
       if (el.nodeType !== 1) {
         return
       }
+
+      // 添加类名
       el.classList.add('weex-root')
       el.classList.add('weex-ct')
       el.setAttribute('data-wx-root-id', rootId)
@@ -144,11 +174,14 @@ export default {
        * the page is using body scrolling instead of scrollabe components.
        * Then the appear watcher should be attached on the body.
        */
+      // 未处理appear监听，认为当前页面没有使用滚动组件
+      // appear 需要在body上处理
       if (!appearWatched) {
         appearWatched = this
         watchAppear(this, true)
       }
 
+      // 移除事件
       this._fireLazyload(el)
     }
 
@@ -167,6 +200,8 @@ export default {
      * if the destroyed element is above another panel with images inside, and the images
      * moved into the viewport, then the lazyloading should be triggered.
      */
+    // 如果要销毁的节点在另一个含有图片的节点上，在图片在视窗展示时，懒加载事件会被触发
+
     if (this._rootId) {
       delete weex._root[this._rootId]
       delete this._rootId

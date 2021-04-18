@@ -101,6 +101,9 @@ const weex = {
   /**
    * Register a new vue instance in this weex instance. Put its root element into weex.document.body.children, so
    * that user can use weex.document.body to walk through all dom structures in all vue instances in the page.
+   * 2021/04/18
+   * 新注册一个vue实例，挂在到weex实例下，并且将根节点添加到weex.document.body.children
+   * 用户在页面上可以通过weex.document.body遍历所有vue实例中的所有dom结构
    */
   registerVueInstance (instance) {
     if (!instance instanceof Vue) {
@@ -155,14 +158,21 @@ const weex = {
   },
 
   registerComponent (name, component) {
+    // vue实例校验告警
     if (!this.__vue__) {
       return console.log('[Vue Render] Vue is not found. Please import Vue.js before register a component.')
     }
+
+    // 先赋值weex下_components[name] = 0
+    // [FE-TODO] why
     this._components[name] = 0
+
+    // 处理css
     if (component._css) {
       const css = component._css.replace(/\b[+-]?[\d.]+rem;?\b/g, function (m) {
         return parseFloat(m) * 75 * weex.config.env.scale + 'px'
       })
+
       utils.appendCss(css, `weex-cmp-${name}`)
       delete component._css
     }
@@ -188,6 +198,7 @@ const weex = {
   }
 }
 
+// 设置weex.document.body.children = []
 Object.defineProperty(weex.document.body, 'children', {
   get () { return _roots }
 })

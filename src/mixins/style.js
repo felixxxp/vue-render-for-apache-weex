@@ -24,6 +24,7 @@ const { bindingStyleNamesForPx2Rem } = config
 
 export default {
   methods: {
+    // px转rem
     _px2rem (value, rootValue) {
       if (typeof value === 'string') {
         return (value + '').replace(/[+-]?\d+(?:.\d*)?[pw]x/gi, function ($0) {
@@ -60,6 +61,7 @@ export default {
       )
     },
 
+    // 获取父节点盒模型信息
     _getParentRect () {
       const el = this.$el
       const parent = el && el.parentElement

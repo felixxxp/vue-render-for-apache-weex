@@ -54,7 +54,7 @@ export function setVue (vue) {
   // 将vue实例挂在到weex对象中
   global.weex.__vue__ = vue
 
-  // 安装插件
+  // 安装renderFunction插件
   weex.install(renderFunctionPlugin)
 
   // 安装日志log

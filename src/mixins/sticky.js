@@ -38,6 +38,7 @@ export default {
         return
       }
       el.classList.add('sticky')
+
       if (!this._placeholder) {
         this._placeholder = el.cloneNode(true)
       }

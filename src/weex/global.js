@@ -34,6 +34,8 @@ weex._styleMap = {}
     weex[method] = core[method].bind(weex)
   })
 
+// TODO: 在这里混入inputcommon?
+// weex.mixins = { inputCommon: inputCommon }
 weex.mixins = {
   inputCommon
 }
